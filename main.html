@@ -1,13 +1,63 @@
 <!DOCTYPE html>
-
-<html>
-  <head>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-
-  <body>
-    <!-- the entire body must be written by student -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download and Display Images</title>
+    <style>
+        #output img {
+            max-width: 100px; /* Set a max width for images */
+            margin: 10px; /* Add some spacing between images */
+        }
+    </style>
+</head>
+<body>
+    <button id="download-images-button">Download Images</button>
     <div id="output"></div>
-    <script type="text/javascript" src="./script.js"></script>
-  </body>
+
+    <script>
+        // Array of image URLs
+        const imageUrls = [
+            { url: 'https://via.placeholder.com/150' },
+            { url: 'https://via.placeholder.com/200' },
+            { url: 'https://via.placeholder.com/250' },
+            { url: 'https://invalid.url/image.jpg' } // This will simulate a failed image load
+        ];
+
+        // Function to load an image
+        function loadImage(image) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.src = image.url;
+
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(new Error(`Failed to load image's URL: ${image.url}`));
+            });
+        }
+
+        // Function to download and display images
+        function downloadImages() {
+            const promises = imageUrls.map(loadImage);
+
+            Promise.allSettled(promises).then((results) => {
+                const outputDiv = document.getElementById('output');
+                outputDiv.innerHTML = ''; // Clear previous content
+
+                results.forEach((result) => {
+                    if (result.status === 'fulfilled') {
+                        outputDiv.appendChild(result.value);
+                    } else {
+                        const errorMessage = document.createElement('p');
+                        errorMessage.textContent = result.reason.message;
+                        outputDiv.appendChild(errorMessage);
+                    }
+                });
+            });
+        }
+
+        // Event listener for the button
+        document.getElementById('download-images-button').addEventListener('click', downloadImages);
+    </script>
+</body>
 </html>
+
